@@ -1,0 +1,22 @@
+@import "config/_variables.scss";
+@import "config/reset.css";
+@import "main.scss";
+
+@import "pages/home.scss";
+@import "pages/videoDetail.scss";
+@import "pages/userProfile.scss";
+@import "pages/search.scss";
+
+@import "partials/header.scss";
+@import "partials/footer.scss";
+@import "partials/form.scss";
+@import "partials/socialLogin.scss";
+@import "partials/videoBlock.scss";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: $grey;
+}
