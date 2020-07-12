@@ -37,7 +37,8 @@
       margin-bottom: 20px;
     }
   }
-  .video__comments {
+  .video__comments,
+  .video__creator {
     width: $videoDetailWidth;
   }
 }

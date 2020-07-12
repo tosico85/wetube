@@ -1,12 +1,10 @@
 import routes from "../routes";
 import Video from "../models/Video";
-import Comment from "../models/Comment";
 // import { videos } from '../db';
 
 export const home = async (req, res) => {
   try {
     const videos = await Video.find({}).sort({ _id: -1 });
-    // console.log(videos);
     res.render("home", { pageTitle: "Home", videos });
   } catch (e) {
     res.render("home", { pageTitle: "Home", videos: [] });
@@ -37,7 +35,16 @@ export const postUpload = async (req, res) => {
   } = req;
 
   //console.log(fileUrl);
-  const newVideo = await Video.create({ fileUrl, title, description });
+  const newVideo = await Video.create({
+    fileUrl,
+    title,
+    description,
+    creator: req.user.id,
+  });
+
+  req.user.videos.push(newVideo.id);
+  req.user.save();
+
   res.redirect(routes.videoDetail(newVideo.id));
   //res.render("upload", { pageTitle: "Upload" });
 };
@@ -48,9 +55,8 @@ export const videoDetail = async (req, res) => {
   } = req;
 
   try {
-    const video = await Video.findById(id);
-    const comments = await Comment.find({ video: id });
-    res.render("videoDetail", { pageTitle: "Video Detail", video, comments });
+    const video = await Video.findById(id).populate("creator");
+    res.render("videoDetail", { pageTitle: "Video Detail", video });
   } catch (e) {
     res.redirect(routes.home);
   }
@@ -63,6 +69,9 @@ export const getEditVideo = async (req, res) => {
 
   try {
     const video = await Video.findById(id);
+    if (String(video.creator) !== req.user.id) {
+      throw Error;
+    }
     res.render("editVideo", { pageTitle: `Edit ${video.title}`, video });
   } catch (e) {
     res.redirect(routes.home);
@@ -76,9 +85,18 @@ export const postEditVideo = async (req, res) => {
   } = req;
 
   try {
-    console.log(id, title, description);
-    await Video.findOneAndUpdate({ _id: id }, { title, description });
-    res.redirect(routes.videoDetail(id));
+    //console.log(id, title, description);
+    //await Video.findOneAndUpdate({ _id: id }, { title, description });
+    const video = await Video.findOne({ _id: id });
+    console.log(video.creator, req.user.id);
+    if (String(video.creator) !== req.user.id) {
+      console.log("exit");
+      res.redirect(routes.videoDetail(id));
+    } else {
+      console.log("update");
+      await video.updateOne({ title, description });
+      res.redirect(routes.videoDetail(id));
+    }
   } catch (e) {
     res.redirect(routes.home);
   }
