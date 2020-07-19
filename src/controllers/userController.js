@@ -38,6 +38,9 @@ export const postLogin = passport.authenticate("local", {
 
 export const githubLogin = passport.authenticate("github");
 
+export const facebookLogin = passport.authenticate("facebook");
+
+// eslint-disable-next-line consistent-return
 export const githubLoginCallback = async (_, __, profile, cb) => {
   const {
     _json: { id: githubId, email, name, login, avatar_url: avatarUrl },
@@ -67,7 +70,46 @@ export const githubLoginCallback = async (_, __, profile, cb) => {
   }); */
 };
 
+// eslint-disable-next-line consistent-return
+export const facebookLoginCallback = async (_, __, profile, cb) => {
+  console.log(profile);
+  const {
+    _json: {
+      picture: { data },
+    },
+  } = profile;
+  console.log(data);
+  const {
+    _json: { id: facebookId, email, name },
+  } = profile;
+
+  try {
+    const user = await User.findOne({ email: email || facebookId });
+    if (user) {
+      console.log("update user..");
+      user.avatarUrl = `https://graph.facebook.com/${facebookId}/picture?type=large`;
+      user.facebookId = facebookId;
+      user.save();
+      return cb(null, user);
+    }
+    console.log("create user..");
+    const newUser = await User.create({
+      email: email || facebookId,
+      name,
+      avatarUrl: `https://graph.facebook.com/${facebookId}/picture?type=large`,
+      facebookId,
+    });
+    return cb(null, newUser);
+  } catch (e) {
+    cb(e);
+  }
+};
+
 export const githubPostLogin = (req, res) => {
+  res.redirect(routes.home);
+};
+
+export const facebookPostLogin = (req, res) => {
   res.redirect(routes.home);
 };
 
@@ -89,7 +131,8 @@ export const userDetail = async (req, res) => {
   } = req;
 
   try {
-    const user = await (await User.findById(id)).populated("Video");
+    const user = await User.findById(id).populate("Video");
+    console.log(user);
     res.render("userDetail", {
       pageTitle: "User Detail",
       user,

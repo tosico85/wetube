@@ -19,4 +19,5 @@ block content
       else
         span.video__comment-number #{video.comments.length} comments
     .video__creator
-      span.video__views #{video.creator.name}
+      span.video__views Uploaded by 
+        a(href=routes.userDetail(video.creator.id)) #{video.creator.name}
