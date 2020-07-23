@@ -1,5 +1,6 @@
 import routes from "../routes";
 import Video from "../models/Video";
+import Comment from "../models/Comment";
 // import { videos } from '../db';
 
 export const home = async (req, res) => {
@@ -31,7 +32,7 @@ export const getUpload = (req, res) =>
 export const postUpload = async (req, res) => {
   const {
     body: { title, description },
-    file: { path: fileUrl },
+    file: { location: fileUrl },
   } = req;
 
   //console.log(fileUrl);
@@ -55,7 +56,10 @@ export const videoDetail = async (req, res) => {
   } = req;
 
   try {
-    const video = await Video.findById(id).populate("creator");
+    const video = await Video.findById(id)
+      .populate("creator")
+      .populate("comments");
+    console.log(video);
     res.render("videoDetail", { pageTitle: "Video Detail", video });
   } catch (e) {
     res.redirect(routes.home);
@@ -108,9 +112,54 @@ export const deleteVideo = async (req, res) => {
   } = req;
 
   try {
-    await Video.findOneAndRemove({ _id: id });
+    const video = await Video.findOne({ _id: id });
+    if (String(video.creator) !== req.user.id) {
+      throw Error();
+    }
+    video.remove();
     res.redirect(routes.home);
   } catch (error) {
     res.render(routes.editVideo(id));
+  }
+};
+
+// Register Video View
+export const postRegisterView = async (req, res) => {
+  const {
+    params: { id },
+  } = req;
+  try {
+    const video = await Video.findById(id);
+    video.views += 1;
+    video.save();
+    res.status(200);
+  } catch (error) {
+    res.status(400);
+  } finally {
+    res.end();
+  }
+};
+
+// Add Comment
+export const postAddComment = async (req, res) => {
+  const {
+    params: { id },
+    body: { comment },
+    user,
+  } = req;
+  try {
+    const video = await Video.findById(id);
+    const newComment = await Comment.create({
+      text: comment,
+      creator: user.id,
+    });
+    req.user.comments.push(newComment.id);
+    video.comments.push(newComment.id);
+    video.save();
+    req.user.save();
+  } catch (error) {
+    res.status(400);
+  } finally {
+    res.end();
   }
 };
