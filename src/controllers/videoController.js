@@ -23,7 +23,7 @@ export const search = async (req, res) => {
     console.log(e);
   }
 
-  res.render("Search", { pageTitle: "Search", searchingBy, videos });
+  res.render("search", { pageTitle: "Search", searchingBy, videos });
 };
 // export const videos = (req, res) => res.render("videos", { pageTitle: "Videos" });
 export const getUpload = (req, res) =>
