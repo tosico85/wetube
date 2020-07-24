@@ -1,6 +1,8 @@
 .videoPlayer {
   position: relative;
   height: 400px;
+  background-color: black;
+
   &:hover {
     .videoPlayer__controls {
       opacity: 1;
