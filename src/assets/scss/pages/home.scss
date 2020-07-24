@@ -6,6 +6,10 @@
     a {
       text-decoration: none;
       color: $black;
+      .videoBlock__thumbnail {
+        max-height: 300px;
+        background-color: black;
+      }
     }
     .video__info {
       .videoBlock__title {
