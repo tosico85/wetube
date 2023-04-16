@@ -19,14 +19,14 @@ _passport["default"].use(_User["default"].createStrategy());
 _passport["default"].use(new _passportGithub["default"]({
   clientID: process.env.GH_ID,
   clientSecret: process.env.GH_SECRET,
-  callbackURL: "http://localhost:4000".concat(_routes["default"].githubCallback)
+  callbackURL: process.env.PRODUCTION ? "https://whispering-wildwood-28575.herokuapp.com".concat(_routes["default"].githubCallback) : "http://localhost:4000".concat(_routes["default"].githubCallback)
 }, _userController.githubLoginCallback));
 
 _passport["default"].use(new _passportFacebook["default"]({
   clientID: process.env.FB_ID,
   clientSecret: process.env.FB_SECRET,
   //callbackURL: `http://localhost:4000${routes.facebookCallback}`,
-  callbackURL: "https://cowardly-warthog-94.serverless.social".concat(_routes["default"].facebookCallback),
+  callbackURL: process.env.PRODUCTION ? "https://whispering-wildwood-28575.herokuapp.com".concat(_routes["default"].facebookCallback) : "https://cowardly-warthog-94.serverless.social".concat(_routes["default"].facebookCallback),
   profileFields: ["id", "displayName", "photos", "email"],
   scope: ["public_profile", "email"]
 }, _userController.facebookLoginCallback));

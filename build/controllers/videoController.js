@@ -91,7 +91,7 @@ var search = /*#__PURE__*/function () {
             console.log(_context2.t0);
 
           case 11:
-            res.render("Search", {
+            res.render("search", {
               pageTitle: "Search",
               searchingBy: searchingBy,
               videos: videos
